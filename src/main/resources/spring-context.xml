@@ -4,10 +4,17 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans
     http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-    <bean id="projectFileNames" class="org.homework.spring.service.ProjectFileNamesImpl">
+    <bean id="appProps" class="org.homework.spring.AppProps">
         <property name="questionsFileName" value="questions.csv"/>
     </bean>
 
-    <bean id="QuestionService" class="org.homework.spring.service.QuestionServiceImpl"/>
+    <bean id="questionReaderDao" class="org.homework.spring.dao.QuestionCSVReaderDao"/>
+
+    <bean id="cliService" class="org.homework.spring.service.CLIServiceImpl"/>
+
+    <bean id="questionService" class="org.homework.spring.service.QuestionService">
+        <constructor-arg index="0" ref="questionReaderDao"/>
+        <constructor-arg index="1" ref="cliService"/>
+    </bean>
 
 </beans>

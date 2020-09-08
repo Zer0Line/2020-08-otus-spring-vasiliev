@@ -1,10 +1,9 @@
-package org.homework.spring.service;
+package org.homework.spring;
 
-public class ProjectFileNamesImpl implements ProjectFileNames {
+public class AppProps {
 
     private String questionsFileName;
 
-    @Override
     public String getQuestions() {
         return questionsFileName;
     }

@@ -5,9 +5,9 @@ import java.util.List;
 
 public class Question {
 
-    String question;
+    private String question;
 
-    List<String> answers = new ArrayList<>();
+    private final List<String> answers = new ArrayList<>();
 
     public String getQuestion() {
         return question;
