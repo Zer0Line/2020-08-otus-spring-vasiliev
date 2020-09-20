@@ -1,7 +1,9 @@
 package org.homework.spring.dao;
 
 import org.homework.spring.domain.Question;
-import org.springframework.core.io.Resource;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationContext;
+import org.springframework.stereotype.Component;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -10,13 +12,20 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
+@Component
 public class QuestionCSVReaderDao implements QuestionReaderDao {
 
+    @Value("${question.fileName}")
+    private String filePath;
+
+    @Value("${question.rightAnswers}")
+    private String answers;
+
     @Override
-    public List<Question> readQuestions(Resource resource) throws IOException {
+    public List<Question> readQuestions(ApplicationContext ctx) throws IOException {
         StringBuilder sb = new StringBuilder();
 
-        InputStream stream = resource.getInputStream();
+        InputStream stream = ctx.getResource(filePath).getInputStream();
         InputStreamReader streamReader = new InputStreamReader(stream);
 
         try (BufferedReader bufferedReader = new BufferedReader(streamReader)) {
@@ -38,20 +47,24 @@ public class QuestionCSVReaderDao implements QuestionReaderDao {
 
         String[] questionAndAnswer = data.split(";");
 
-        for (String qAndA : questionAndAnswer) {
+        String[] rightAnswers = answers.split(",");
+
+        for (int i = 0; i < questionAndAnswer.length; i++) {
+            String qAndA = questionAndAnswer[i];
             Question q = new Question();
 
             String[] split = qAndA.split(",");
 
-            for (int i = 0; i < split.length; i++) {
-                String d = split[i];
-                if (i == 0) {
+            for (int j = 0; j < split.length; j++) {
+                String d = split[j];
+                if (j == 0) {
                     q.setQuestion(d);
                 } else {
                     q.setAnswers(d);
                 }
             }
 
+            q.setRightAnswerNum(rightAnswers[i]);
             questions.add(q);
         }
 

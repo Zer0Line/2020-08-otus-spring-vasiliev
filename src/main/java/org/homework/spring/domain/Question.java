@@ -7,6 +7,8 @@ public class Question {
 
     private String question;
 
+    private Integer rightAnswerNum;
+
     private final List<String> answers = new ArrayList<>();
 
     public String getQuestion() {
@@ -23,5 +25,13 @@ public class Question {
 
     public void setAnswers(String answers) {
         this.answers.add(answers);
+    }
+
+    public Integer getRightAnswerNum() {
+        return rightAnswerNum;
+    }
+
+    public void setRightAnswerNum(String rightAnswerNum) {
+        this.rightAnswerNum = Integer.valueOf(rightAnswerNum);
     }
 }
