@@ -2,8 +2,7 @@ package org.homework.spring.dao;
 
 import org.homework.spring.domain.Question;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.ApplicationContext;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Repository;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -11,22 +10,27 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
-@Component
+@Repository
 public class QuestionCSVReaderDao implements QuestionReaderDao {
 
-    @Value("${question.fileName}")
-    private String filePath;
+    private final String filePath;
 
-    @Value("${question.rightAnswers}")
-    private String answers;
+    private final String answers;
+
+    public QuestionCSVReaderDao(@Value("${question.fileName}") String filePath,
+                                @Value("${question.rightAnswers}") String answers) {
+        this.filePath = filePath;
+        this.answers = answers;
+    }
 
     @Override
-    public List<Question> readQuestions(ApplicationContext ctx) throws IOException {
+    public List<Question> readQuestions() {
         StringBuilder sb = new StringBuilder();
 
-        InputStream stream = ctx.getResource(filePath).getInputStream();
-        InputStreamReader streamReader = new InputStreamReader(stream);
+        InputStream stream = getClass().getClassLoader().getResourceAsStream(filePath);
+        InputStreamReader streamReader = new InputStreamReader(Objects.requireNonNull(stream));
 
         try (BufferedReader bufferedReader = new BufferedReader(streamReader)) {
             String line;

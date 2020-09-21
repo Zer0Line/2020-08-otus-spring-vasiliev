@@ -3,29 +3,29 @@ package org.homework.spring.service;
 import org.homework.spring.dao.QuestionReaderDao;
 import org.homework.spring.domain.Question;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
-import java.io.IOException;
 import java.util.List;
 
-@Component
+@Service
 public class QuestionService {
 
-    public QuestionReaderDao readerDao;
+    private final QuestionReaderDao readerDao;
 
-    public CLIService cliService;
+    private final CLIService cliService;
 
-    @Value("${question.answersToPassTest}")
-    private Integer answersToPassTest;
+    private final Integer answersToPassTest;
 
-    public QuestionService(QuestionReaderDao readerDao, CLIService cliService) {
+    public QuestionService(QuestionReaderDao readerDao,
+                           CLIService cliService,
+                           @Value("${question.answersToPassTest}") Integer answers) {
         this.readerDao = readerDao;
         this.cliService = cliService;
+        answersToPassTest = answers;
     }
 
-    public void startTest(AnnotationConfigApplicationContext context) throws IOException {
-        List<Question> questions = readerDao.readQuestions(context);
+    public void startTest() {
+        List<Question> questions = readerDao.readQuestions();
         askFullName();
         int rightAnswers = proceedQuestions(questions);
         printResult(rightAnswers);
@@ -52,7 +52,7 @@ public class QuestionService {
 
     private Integer askQuestion(Question question) {
         cliService.printData(question.getQuestion());
-        question.getAnswers().forEach(q -> cliService.printData(q));
+        question.getAnswers().forEach(cliService::printData);
         return cliService.readNumber();
     }
 
