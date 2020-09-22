@@ -2,6 +2,7 @@ package org.homework.spring.service;
 
 import org.homework.spring.dao.QuestionReaderDao;
 import org.homework.spring.domain.Question;
+import org.homework.spring.exceptions.QuestionsReadingException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -14,21 +15,26 @@ public class QuestionService {
 
     private final CLIService cliService;
 
-    private final Integer answersToPassTest;
+    private final int answersToPassTest;
 
     public QuestionService(QuestionReaderDao readerDao,
                            CLIService cliService,
-                           @Value("${question.answersToPassTest}") Integer answers) {
+                           @Value("${question.answersToPassTest}") int answers) {
         this.readerDao = readerDao;
         this.cliService = cliService;
         answersToPassTest = answers;
     }
 
     public void startTest() {
-        List<Question> questions = readerDao.readQuestions();
-        askFullName();
-        int rightAnswers = proceedQuestions(questions);
-        printResult(rightAnswers);
+        List<Question> questions;
+        try {
+            questions = readerDao.readQuestions();
+            askFullName();
+            int rightAnswers = proceedQuestions(questions);
+            printResult(rightAnswers);
+        } catch (QuestionsReadingException e) {
+            e.printStackTrace();
+        }
     }
 
     private void askFullName() {
@@ -37,12 +43,12 @@ public class QuestionService {
         cliService.printData("Доброго времени суток " + name + "! Пройдите тест");
     }
 
-    public int proceedQuestions(List<Question> questions) {
+    private int proceedQuestions(List<Question> questions) {
         int rightAnswers = 0;
 
         for (Question question : questions) {
-            Integer answerNum = askQuestion(question);
-            if (question.getRightAnswerNum().equals(answerNum)) {
+            int answerNum = askQuestion(question);
+            if (question.getRightAnswerNum() == answerNum) {
                 rightAnswers++;
             }
         }
@@ -50,13 +56,13 @@ public class QuestionService {
         return rightAnswers;
     }
 
-    private Integer askQuestion(Question question) {
+    private int askQuestion(Question question) {
         cliService.printData(question.getQuestion());
         question.getAnswers().forEach(cliService::printData);
         return cliService.readNumber();
     }
 
-    private void printResult(Integer rightAnswers) {
+    private void printResult(int rightAnswers) {
         String result = "Венрых ответов: " + rightAnswers + ". ";
 
         result += (rightAnswers > answersToPassTest)

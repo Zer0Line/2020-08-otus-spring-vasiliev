@@ -33,7 +33,7 @@ public class CLIServiceImpl implements CLIService {
     }
 
     @Override
-    public Integer readNumber() {
+    public int readNumber() {
         return scanner.nextInt();
     }
 }

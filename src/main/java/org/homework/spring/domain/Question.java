@@ -27,7 +27,7 @@ public class Question {
         this.answers.add(answers);
     }
 
-    public Integer getRightAnswerNum() {
+    public int getRightAnswerNum() {
         return rightAnswerNum;
     }
 

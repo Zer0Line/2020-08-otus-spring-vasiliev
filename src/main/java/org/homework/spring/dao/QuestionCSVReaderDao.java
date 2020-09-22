@@ -1,6 +1,7 @@
 package org.homework.spring.dao;
 
 import org.homework.spring.domain.Question;
+import org.homework.spring.exceptions.QuestionsReadingException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
 
@@ -17,28 +18,24 @@ public class QuestionCSVReaderDao implements QuestionReaderDao {
 
     private final String filePath;
 
-    private final String answers;
-
-    public QuestionCSVReaderDao(@Value("${question.fileName}") String filePath,
-                                @Value("${question.rightAnswers}") String answers) {
+    public QuestionCSVReaderDao(@Value("${question.fileName}") String filePath) {
         this.filePath = filePath;
-        this.answers = answers;
     }
 
     @Override
-    public List<Question> readQuestions() {
+    public List<Question> readQuestions() throws QuestionsReadingException {
         StringBuilder sb = new StringBuilder();
-
         InputStream stream = getClass().getClassLoader().getResourceAsStream(filePath);
-        InputStreamReader streamReader = new InputStreamReader(Objects.requireNonNull(stream));
 
-        try (BufferedReader bufferedReader = new BufferedReader(streamReader)) {
+        try {
+            InputStreamReader streamReader = new InputStreamReader(Objects.requireNonNull(stream));
+            BufferedReader bufferedReader = new BufferedReader(streamReader);
             String line;
             while ((line = bufferedReader.readLine()) != null) {
                 sb.append(line).append(";");
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new QuestionsReadingException(e.getMessage(), e);
         }
 
         return parseDataFromFile(sb.toString());
@@ -51,24 +48,26 @@ public class QuestionCSVReaderDao implements QuestionReaderDao {
 
         String[] questionAndAnswer = data.split(";");
 
-        String[] rightAnswers = answers.split(",");
-
-        for (int i = 0; i < questionAndAnswer.length; i++) {
-            String qAndA = questionAndAnswer[i];
+        for (String qAndA : questionAndAnswer) {
             Question q = new Question();
 
             String[] split = qAndA.split(",");
 
-            for (int j = 0; j < split.length; j++) {
-                String d = split[j];
-                if (j == 0) {
-                    q.setQuestion(d);
-                } else {
-                    q.setAnswers(d);
+            for (int i = 0; i < split.length; i++) {
+                String d = split[i];
+                switch (i) {
+                    case 0:
+                        q.setQuestion(d);
+                        break;
+                    case 1:
+                        q.setRightAnswerNum(d);
+                        break;
+                    default:
+                        q.setAnswers(d);
+                        break;
                 }
             }
 
-            q.setRightAnswerNum(rightAnswers[i]);
             questions.add(q);
         }
 

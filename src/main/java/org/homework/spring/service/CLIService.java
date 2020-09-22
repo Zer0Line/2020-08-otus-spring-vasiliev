@@ -6,6 +6,6 @@ public interface CLIService {
 
     String readData();
 
-    Integer readNumber();
+    int readNumber();
 
 }
