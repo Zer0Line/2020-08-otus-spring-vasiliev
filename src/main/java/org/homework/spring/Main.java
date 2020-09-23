@@ -1,27 +1,20 @@
 package org.homework.spring;
 
 import org.homework.spring.service.QuestionService;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.PropertySource;
 
-import java.io.IOException;
-
+@ComponentScan
+@PropertySource("classpath:application.properties")
 class Main {
 
     public static void main(String[] args) {
 
-        ClassPathXmlApplicationContext context =
-                new ClassPathXmlApplicationContext("/spring-context.xml");
+        AnnotationConfigApplicationContext context =
+                new AnnotationConfigApplicationContext(Main.class);
 
-        AppProps appProps = context.getBean(AppProps.class);
-
-        QuestionService questionService = context.getBean(QuestionService.class);
-
-        try {
-            questionService.startTest(context.getResource(appProps.getQuestions()));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
+        context.getBean(QuestionService.class).startTest();
     }
 
 }

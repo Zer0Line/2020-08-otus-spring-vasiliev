@@ -2,37 +2,73 @@ package org.homework.spring.service;
 
 import org.homework.spring.dao.QuestionReaderDao;
 import org.homework.spring.domain.Question;
-import org.springframework.core.io.Resource;
+import org.homework.spring.exceptions.QuestionsReadingException;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
 
-import java.io.IOException;
 import java.util.List;
 
+@Service
 public class QuestionService {
 
-    public QuestionReaderDao readerDao;
+    private final QuestionReaderDao readerDao;
 
-    public CLIService cliService;
+    private final CLIService cliService;
 
-    public QuestionService(QuestionReaderDao readerDao, CLIService cliService) {
+    private final int answersToPassTest;
+
+    public QuestionService(QuestionReaderDao readerDao,
+                           CLIService cliService,
+                           @Value("${question.answersToPassTest}") int answers) {
         this.readerDao = readerDao;
         this.cliService = cliService;
+        answersToPassTest = answers;
     }
 
-    public void printAllData(List<Question> questions) {
-        questions.forEach(question -> {
-            cliService.printData("Вопрос:");
-            cliService.printData(question.getQuestion());
-            cliService.printData("Варианты ответа: ");
-            question.getAnswers().forEach(a -> System.out.println("* " + a));
-            cliService.printData("------------");
-        });
+    public void startTest() {
+        List<Question> questions;
+        try {
+            questions = readerDao.readQuestions();
+            askFullName();
+            int rightAnswers = proceedQuestions(questions);
+            printResult(rightAnswers);
+        } catch (QuestionsReadingException e) {
+            e.printStackTrace();
+        }
     }
 
-    public void startTest(Resource resource) throws IOException {
-
-        List<Question> questions = readerDao.readQuestions(resource);
-        printAllData(questions);
-
+    private void askFullName() {
+        cliService.printData("Введите имя фамилию:");
+        String name = cliService.readData();
+        cliService.printData("Доброго времени суток " + name + "! Пройдите тест");
     }
 
+    private int proceedQuestions(List<Question> questions) {
+        int rightAnswers = 0;
+
+        for (Question question : questions) {
+            int answerNum = askQuestion(question);
+            if (question.getRightAnswerNum() == answerNum) {
+                rightAnswers++;
+            }
+        }
+
+        return rightAnswers;
+    }
+
+    private int askQuestion(Question question) {
+        cliService.printData(question.getQuestion());
+        question.getAnswers().forEach(cliService::printData);
+        return cliService.readNumber();
+    }
+
+    private void printResult(int rightAnswers) {
+        String result = "Венрых ответов: " + rightAnswers + ". ";
+
+        result += (rightAnswers > answersToPassTest)
+                ? "Вы прошли тест"
+                : "Тест не пройден";
+
+        cliService.printData(result);
+    }
 }

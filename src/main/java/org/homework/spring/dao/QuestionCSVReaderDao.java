@@ -1,7 +1,9 @@
 package org.homework.spring.dao;
 
 import org.homework.spring.domain.Question;
-import org.springframework.core.io.Resource;
+import org.homework.spring.exceptions.QuestionsReadingException;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Repository;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -9,23 +11,31 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
+@Repository
 public class QuestionCSVReaderDao implements QuestionReaderDao {
 
+    private final String filePath;
+
+    public QuestionCSVReaderDao(@Value("${question.fileName}") String filePath) {
+        this.filePath = filePath;
+    }
+
     @Override
-    public List<Question> readQuestions(Resource resource) throws IOException {
+    public List<Question> readQuestions() throws QuestionsReadingException {
         StringBuilder sb = new StringBuilder();
+        InputStream stream = getClass().getClassLoader().getResourceAsStream(filePath);
 
-        InputStream stream = resource.getInputStream();
-        InputStreamReader streamReader = new InputStreamReader(stream);
-
-        try (BufferedReader bufferedReader = new BufferedReader(streamReader)) {
+        try {
+            InputStreamReader streamReader = new InputStreamReader(Objects.requireNonNull(stream));
+            BufferedReader bufferedReader = new BufferedReader(streamReader);
             String line;
             while ((line = bufferedReader.readLine()) != null) {
                 sb.append(line).append(";");
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new QuestionsReadingException(e.getMessage(), e);
         }
 
         return parseDataFromFile(sb.toString());
@@ -45,10 +55,16 @@ public class QuestionCSVReaderDao implements QuestionReaderDao {
 
             for (int i = 0; i < split.length; i++) {
                 String d = split[i];
-                if (i == 0) {
-                    q.setQuestion(d);
-                } else {
-                    q.setAnswers(d);
+                switch (i) {
+                    case 0:
+                        q.setQuestion(d);
+                        break;
+                    case 1:
+                        q.setRightAnswerNum(d);
+                        break;
+                    default:
+                        q.setAnswers(d);
+                        break;
                 }
             }
 
