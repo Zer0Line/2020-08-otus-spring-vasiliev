@@ -1,8 +1,8 @@
 package org.homework.spring.dao;
 
+import org.homework.spring.config.AppProps;
 import org.homework.spring.domain.Question;
 import org.homework.spring.exceptions.QuestionsReadingException;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
 
 import java.io.BufferedReader;
@@ -11,6 +11,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 
 @Repository
@@ -18,8 +19,13 @@ public class QuestionCSVReaderDao implements QuestionReaderDao {
 
     private final String filePath;
 
-    public QuestionCSVReaderDao(@Value("${question.fileName}") String filePath) {
-        this.filePath = filePath;
+    private static final String FILE_EXTANSION = ".csv";
+    private static final String EN_LOCALIZATION_PREFIX = "_en";
+
+    public QuestionCSVReaderDao(AppProps appProps) {
+        this.filePath = (appProps.getLocale().equals(Locale.ENGLISH))
+                ? appProps.getFileName() + EN_LOCALIZATION_PREFIX + FILE_EXTANSION
+                : appProps.getFileName() + FILE_EXTANSION;
     }
 
     @Override

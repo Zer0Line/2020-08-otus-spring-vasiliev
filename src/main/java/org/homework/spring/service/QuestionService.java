@@ -1,9 +1,10 @@
 package org.homework.spring.service;
 
+import org.homework.spring.config.AppProps;
 import org.homework.spring.dao.QuestionReaderDao;
 import org.homework.spring.domain.Question;
 import org.homework.spring.exceptions.QuestionsReadingException;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -11,18 +12,24 @@ import java.util.List;
 @Service
 public class QuestionService {
 
+    private final MessageSource messageSource;
+
     private final QuestionReaderDao readerDao;
 
     private final CLIService cliService;
 
     private final int answersToPassTest;
 
-    public QuestionService(QuestionReaderDao readerDao,
+    private final AppProps appProps;
+
+    public QuestionService(MessageSource messageSource, QuestionReaderDao readerDao,
                            CLIService cliService,
-                           @Value("${question.answersToPassTest}") int answers) {
+                           AppProps appProps) {
+        this.messageSource = messageSource;
         this.readerDao = readerDao;
         this.cliService = cliService;
-        answersToPassTest = answers;
+        this.appProps = appProps;
+        answersToPassTest = appProps.getAnswersToPassTest();
     }
 
     public void startTest() {
@@ -38,9 +45,11 @@ public class QuestionService {
     }
 
     private void askFullName() {
-        cliService.printData("Введите имя фамилию:");
+        cliService.printData(messageSource.getMessage("test.askFullName", null, appProps.getLocale()));
         String name = cliService.readData();
-        cliService.printData("Доброго времени суток " + name + "! Пройдите тест");
+        String welcomeMessage = messageSource.getMessage(
+                "test.welcomeMessage", new String[]{name}, appProps.getLocale());
+        cliService.printData(welcomeMessage);
     }
 
     private int proceedQuestions(List<Question> questions) {
@@ -63,11 +72,12 @@ public class QuestionService {
     }
 
     private void printResult(int rightAnswers) {
-        String result = "Венрых ответов: " + rightAnswers + ". ";
+        String result = messageSource.getMessage("test.rightAnswers",
+                new String[]{String.valueOf(rightAnswers)}, appProps.getLocale());
 
         result += (rightAnswers > answersToPassTest)
-                ? "Вы прошли тест"
-                : "Тест не пройден";
+                ? messageSource.getMessage("test.success", null, appProps.getLocale())
+                : messageSource.getMessage("test.fail", null, appProps.getLocale());
 
         cliService.printData(result);
     }
