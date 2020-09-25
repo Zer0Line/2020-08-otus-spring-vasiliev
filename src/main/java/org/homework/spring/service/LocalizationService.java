@@ -18,7 +18,7 @@ public class LocalizationService {
         locale = appProps.getLocale();
     }
 
-    public String getMessage(String bundleKey, String[] extra) {
+    public String getMessage(String bundleKey, Object... extra) {
         return messageSource.getMessage(bundleKey, extra, locale);
     }
 

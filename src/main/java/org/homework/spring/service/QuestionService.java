@@ -45,7 +45,7 @@ public class QuestionService {
         cliService.printData(localizationService.getMessage("test.askFullName"));
         String name = cliService.readData();
         String welcomeMessage = localizationService.getMessage(
-                "test.welcomeMessage", new String[]{name});
+                "test.welcomeMessage", name);
         cliService.printData(welcomeMessage);
     }
 
@@ -69,8 +69,7 @@ public class QuestionService {
     }
 
     private void printResult(int rightAnswers) {
-        String result = localizationService.getMessage("test.rightAnswers",
-                new String[]{String.valueOf(rightAnswers)});
+        String result = localizationService.getMessage("test.rightAnswers", rightAnswers);
 
         result += (rightAnswers > answersToPassTest)
                 ? localizationService.getMessage("test.success")
