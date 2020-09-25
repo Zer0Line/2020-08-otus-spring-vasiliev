@@ -12,7 +12,17 @@ public class AppProps {
 
     private String fileName;
 
+    private String fileExtension;
+
     private int answersToPassTest;
+
+    public String getFileExtension() {
+        return fileExtension;
+    }
+
+    public void setFileExtension(String fileExtension) {
+        this.fileExtension = fileExtension;
+    }
 
     public Locale getLocale() {
         return locale;
@@ -23,7 +33,7 @@ public class AppProps {
     }
 
     public String getFileName() {
-        return fileName;
+        return fileName + locale + fileExtension;
     }
 
     public void setFileName(String fileName) {

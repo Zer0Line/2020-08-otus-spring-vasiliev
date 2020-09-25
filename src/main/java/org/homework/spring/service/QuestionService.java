@@ -4,7 +4,6 @@ import org.homework.spring.config.AppProps;
 import org.homework.spring.dao.QuestionReaderDao;
 import org.homework.spring.domain.Question;
 import org.homework.spring.exceptions.QuestionsReadingException;
-import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -12,7 +11,7 @@ import java.util.List;
 @Service
 public class QuestionService {
 
-    private final MessageSource messageSource;
+    private final LocalizationService localizationService;
 
     private final QuestionReaderDao readerDao;
 
@@ -20,15 +19,13 @@ public class QuestionService {
 
     private final int answersToPassTest;
 
-    private final AppProps appProps;
-
-    public QuestionService(MessageSource messageSource, QuestionReaderDao readerDao,
+    public QuestionService(LocalizationService localizationService,
+                           QuestionReaderDao readerDao,
                            CLIService cliService,
                            AppProps appProps) {
-        this.messageSource = messageSource;
+        this.localizationService = localizationService;
         this.readerDao = readerDao;
         this.cliService = cliService;
-        this.appProps = appProps;
         answersToPassTest = appProps.getAnswersToPassTest();
     }
 
@@ -45,10 +42,10 @@ public class QuestionService {
     }
 
     private void askFullName() {
-        cliService.printData(messageSource.getMessage("test.askFullName", null, appProps.getLocale()));
+        cliService.printData(localizationService.getMessage("test.askFullName"));
         String name = cliService.readData();
-        String welcomeMessage = messageSource.getMessage(
-                "test.welcomeMessage", new String[]{name}, appProps.getLocale());
+        String welcomeMessage = localizationService.getMessage(
+                "test.welcomeMessage", new String[]{name});
         cliService.printData(welcomeMessage);
     }
 
@@ -72,12 +69,12 @@ public class QuestionService {
     }
 
     private void printResult(int rightAnswers) {
-        String result = messageSource.getMessage("test.rightAnswers",
-                new String[]{String.valueOf(rightAnswers)}, appProps.getLocale());
+        String result = localizationService.getMessage("test.rightAnswers",
+                new String[]{String.valueOf(rightAnswers)});
 
         result += (rightAnswers > answersToPassTest)
-                ? messageSource.getMessage("test.success", null, appProps.getLocale())
-                : messageSource.getMessage("test.fail", null, appProps.getLocale());
+                ? localizationService.getMessage("test.success")
+                : localizationService.getMessage("test.fail");
 
         cliService.printData(result);
     }

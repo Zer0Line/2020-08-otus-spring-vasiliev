@@ -1,4 +1,10 @@
+spring:
+  messages:
+    encoding: UTF-8
+    basename: i18n/bundle
+
 application:
-  fileName: "questions"
+  fileName: "questions_"
+  fileExtension: ".csv"
   answersToPassTest: 3
-  locale: ru_RU
+  locale: en
