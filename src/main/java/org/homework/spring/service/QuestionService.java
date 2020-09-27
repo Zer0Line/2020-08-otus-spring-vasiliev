@@ -1,9 +1,9 @@
 package org.homework.spring.service;
 
+import org.homework.spring.config.AppProps;
 import org.homework.spring.dao.QuestionReaderDao;
 import org.homework.spring.domain.Question;
 import org.homework.spring.exceptions.QuestionsReadingException;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -11,18 +11,22 @@ import java.util.List;
 @Service
 public class QuestionService {
 
+    private final LocalizationService localizationService;
+
     private final QuestionReaderDao readerDao;
 
     private final CLIService cliService;
 
     private final int answersToPassTest;
 
-    public QuestionService(QuestionReaderDao readerDao,
+    public QuestionService(LocalizationService localizationService,
+                           QuestionReaderDao readerDao,
                            CLIService cliService,
-                           @Value("${question.answersToPassTest}") int answers) {
+                           AppProps appProps) {
+        this.localizationService = localizationService;
         this.readerDao = readerDao;
         this.cliService = cliService;
-        answersToPassTest = answers;
+        answersToPassTest = appProps.getAnswersToPassTest();
     }
 
     public void startTest() {
@@ -38,9 +42,11 @@ public class QuestionService {
     }
 
     private void askFullName() {
-        cliService.printData("Введите имя фамилию:");
+        cliService.printData(localizationService.getMessage("test.askFullName"));
         String name = cliService.readData();
-        cliService.printData("Доброго времени суток " + name + "! Пройдите тест");
+        String welcomeMessage = localizationService.getMessage(
+                "test.welcomeMessage", name);
+        cliService.printData(welcomeMessage);
     }
 
     private int proceedQuestions(List<Question> questions) {
@@ -63,11 +69,11 @@ public class QuestionService {
     }
 
     private void printResult(int rightAnswers) {
-        String result = "Венрых ответов: " + rightAnswers + ". ";
+        String result = localizationService.getMessage("test.rightAnswers", rightAnswers);
 
         result += (rightAnswers > answersToPassTest)
-                ? "Вы прошли тест"
-                : "Тест не пройден";
+                ? localizationService.getMessage("test.success")
+                : localizationService.getMessage("test.fail");
 
         cliService.printData(result);
     }

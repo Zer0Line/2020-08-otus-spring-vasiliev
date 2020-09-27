@@ -1,20 +1,21 @@
 package org.homework.spring;
 
+import org.homework.spring.config.AppProps;
 import org.homework.spring.service.QuestionService;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.PropertySource;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.context.ConfigurableApplicationContext;
 
-@ComponentScan
-@PropertySource("classpath:application.properties")
+@SpringBootApplication
+@EnableConfigurationProperties(AppProps.class)
 class Main {
 
     public static void main(String[] args) {
 
-        AnnotationConfigApplicationContext context =
-                new AnnotationConfigApplicationContext(Main.class);
+        ConfigurableApplicationContext ctx = SpringApplication.run(Main.class, args);
 
-        context.getBean(QuestionService.class).startTest();
+        ctx.getBean(QuestionService.class).startTest();
     }
 
 }

@@ -1,8 +1,8 @@
 package org.homework.spring.dao;
 
+import org.homework.spring.config.AppProps;
 import org.homework.spring.domain.Question;
 import org.homework.spring.exceptions.QuestionsReadingException;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
 
 import java.io.BufferedReader;
@@ -18,8 +18,8 @@ public class QuestionCSVReaderDao implements QuestionReaderDao {
 
     private final String filePath;
 
-    public QuestionCSVReaderDao(@Value("${question.fileName}") String filePath) {
-        this.filePath = filePath;
+    public QuestionCSVReaderDao(AppProps appProps) {
+        this.filePath = appProps.getFileName();
     }
 
     @Override
