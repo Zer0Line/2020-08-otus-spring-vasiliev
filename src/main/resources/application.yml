@@ -4,7 +4,4 @@ spring:
     basename: i18n/bundle
 
 application:
-  fileName: "questions_"
-  fileExtension: ".csv"
-  answersToPassTest: 3
   locale: en
